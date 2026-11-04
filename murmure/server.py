@@ -167,60 +167,11 @@ def handle(audio_bytes: bytes | None, text: str | None, emit):
         emit({"type": "fin", "timings": t})
 
 
-PAGE = """<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Murmure</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem;background:#111;color:#eee}
-button{width:100%;padding:2rem;font-size:1.3rem;border:0;border-radius:1rem;background:#2b6cb0;color:#fff;touch-action:none}
-button.rec{background:#c53030} button:disabled{background:#555}
-form{display:flex;gap:.5rem;margin-top:1rem} input{flex:1;padding:.8rem;border-radius:.5rem;border:0}
-.msg{margin:.6rem 0;padding:.7rem;border-radius:.6rem} .q{background:#2d3748} .a{background:#22543d}
-small{color:#aaa} a{color:#9ae6b4}
-</style></head><body>
-<h1>Murmure</h1>
-<button id="talk">Maintenir pour parler</button>
-<form id="f"><input id="txt" placeholder="…ou écris ta question" autocomplete="off"><button style="width:auto;padding:.8rem">Envoyer</button></form>
-<div id="log"></div>
-<script>
-const btn=document.getElementById('talk'), log=document.getElementById('log');
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-let rec, chunks=[], queue=[], playing=false;
-function add(cls){const d=document.createElement('div');d.className='msg '+cls;log.prepend(d);return d;}
-function playNext(){ if(playing||!queue.length) return; playing=true;
-  const a=new Audio('data:audio/wav;base64,'+queue.shift()); a.onended=a.onerror=()=>{playing=false;playNext();}; a.play().catch(()=>{playing=false;playNext();}); }
-async function send(body, headers){
-  btn.disabled=true; btn.textContent='Murmure réfléchit…'; const t0=performance.now();
-  let q=null, a=null, txt='', src='', first=null;
-  try{
-    const r=await fetch('talk',{method:'POST',body,headers});
-    if(!r.ok){ const j=await r.json().catch(()=>({})); throw new Error(j.error||r.status); }
-    const rd=r.body.getReader(), dec=new TextDecoder(); let buf='';
-    for(;;){ const {done,value}=await rd.read(); if(done) break; buf+=dec.decode(value,{stream:true});
-      let i; while((i=buf.indexOf('\\n'))>=0){ const line=buf.slice(0,i); buf=buf.slice(i+1); if(!line) continue; const m=JSON.parse(line);
-        if(m.type==='question'){ q=add('q'); q.innerHTML=esc(m.texte||'(rien entendu)'); a=add('a'); }
-        else if(m.type==='ack'){ queue.push(m.audio); playNext(); }
-        else if(m.type==='sources'){ src='<br><small>Recherche : '+esc(m.requete)+'<br>'+m.sources.map((s,k)=>'<a href="'+encodeURI(s.url)+'" target="_blank" rel="noopener">['+(k+1)+'] '+esc(s.titre)+'</a>').join('<br>')+'</small>'; }
-        else if(m.type==='phrase'){ if(first===null) first=((performance.now()-t0)/1000).toFixed(1); txt+=(txt?' ':'')+m.texte; a.innerHTML=esc(txt)+src; queue.push(m.audio); playNext(); }
-        else if(m.type==='fin'){ const tm=m.timings; a.innerHTML=esc(txt)+src+'<br><small>reconnaissance '+(tm.stt??'-')+' s'+(tm.recherche?' · recherche '+tm.recherche+' s':'')+' · premier son '+first+' s · total '+tm.total+' s</small>'; }
-        else if(m.type==='erreur'){ (a||add('a')).innerHTML='Erreur : '+esc(m.message); }
-      } }
-  }catch(e){ add('a').innerHTML='Erreur : '+esc(e.message); }
-  btn.disabled=false; btn.textContent='Maintenir pour parler';
-}
-btn.onpointerdown=async e=>{
-  e.preventDefault();
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:true});
-    chunks=[]; rec=new MediaRecorder(s);
-    rec.ondataavailable=ev=>chunks.push(ev.data);
-    rec.onstop=()=>{s.getTracks().forEach(t=>t.stop()); const b=new Blob(chunks,{type:rec.mimeType}); if(b.size>0) send(b,{'Content-Type':rec.mimeType});};
-    rec.start(); btn.classList.add('rec'); btn.textContent='J’écoute… (relâche pour envoyer)';
-  }catch(err){ add('a').innerHTML='Micro inaccessible : '+esc(err.message); }
-};
-const stop=()=>{ if(rec&&rec.state==='recording'){ rec.stop(); btn.classList.remove('rec'); } };
-btn.onpointerup=stop; btn.onpointerleave=stop;
-document.getElementById('f').onsubmit=e=>{e.preventDefault(); const t=document.getElementById('txt'); if(t.value.trim()){ send(JSON.stringify({text:t.value}),{'Content-Type':'application/json'}); t.value=''; }};
-</script></body></html>"""
+WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")  # the web page: index.html, app.js, style.css, icon, manifest
+WEB_FILES = {"/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/style.css": "style.css", "/icon.svg": "icon.svg",
+             "/manifest.webmanifest": "manifest.webmanifest"}
+WEB_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+             ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json"}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -233,10 +184,12 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            data = PAGE.encode()
+        if self.path in WEB_FILES:
+            name = WEB_FILES[self.path]
+            with open(os.path.join(WEB, name), "rb") as f:  # read on each request: editing the page needs no restart
+                data = f.read()
             self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Type", WEB_TYPES[os.path.splitext(name)[1]])
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)

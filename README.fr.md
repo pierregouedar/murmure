@@ -60,6 +60,14 @@ Ouvrir `http://127.0.0.1:8080`. Le navigateur n'autorise le micro que sur `local
 Murmure se lance depuis son **dossier d'instance** (`MURMURE_HOME`, le dossier courant par défaut), qui contient `servers.json`,
 `voices/`, `plugins/`, `system_prompt.txt`, `pronunciation.txt` et les fichiers de clés.
 
+## La page web
+
+Une seule page, sans étape de build, installable sur l'écran d'accueil d'un téléphone. Touche la bulle pour parler : Murmure envoie ta question
+quand tu te tais, ou maintiens-la et relâche pour envoyer. La bulle montre ce qui se passe (écoute avec niveau en direct, réflexion, parole).
+`Espace` maintenu pour parler, `Échap` annule, **Stop** interrompt une longue réponse, l'icône haut-parleur coupe la voix. Les réponses arrivent
+au fil de la parole, avec les sources en liens et le détail des temps à un toucher. La conversation reste dans le navigateur, et la page suit
+le thème et la langue du système (français ou anglais). Elle vit dans `murmure/web/` et est servie comme de simples fichiers.
+
 ## Configuration
 
 Tout est facultatif ; voir [`deploy/murmure.env.example`](deploy/murmure.env.example).
@@ -123,7 +131,7 @@ liste de mots sensibles sont en français. Ajouter une langue, c'est écrire ses
 ## Organisation du dépôt
 
 ```
-murmure/      le paquet : serveur (HTTP, STT, TTS), règles (quoi chercher, nettoyage), outils (réponses instantanées), backend (chaîne de serveurs)
+murmure/      le paquet : serveur (HTTP, STT, TTS), règles (quoi chercher, nettoyage), outils (réponses instantanées), backend (chaîne de serveurs), web/ (la page)
 examples/     plugin d'exemple
 deploy/       exemples d'env et de serveurs, unités systemd, notifieur ntfy
 tests/        tests unitaires, bibliothèque standard seule : python -m tests

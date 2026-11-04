@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141415" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
+<title>Murmure</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-state="idle" data-lvl="0">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="4 4 44 56">
+    <g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round">
+      <circle class="dot" cx="14" cy="32" r="4" fill="currentColor" stroke="none"/>
+      <path class="arc a1" d="M22.9 24 A12 12 0 0 1 22.9 40"/>
+      <path class="arc a2" d="M30.4 17.3 A22 22 0 0 1 30.4 46.7"/>
+      <path class="arc a3" d="M37.8 10.6 A32 32 0 0 1 37.8 53.4"/>
+    </g>
+  </symbol>
+</svg>
+<header>
+  <div class="brand"><svg class="glyph" width="16" height="20"><use href="#mark"/></svg><span>Murmure</span></div>
+  <div class="tools">
+    <button id="mute" class="icon" type="button" aria-pressed="false" data-i18n-title="mute"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path class="on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path class="off" d="m16 9 5 6m0-6-5 6"/></svg></button>
+    <button id="clear" class="icon" type="button" data-i18n-title="clear"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>
+  </div>
+</header>
+
+<main id="log" aria-live="polite">
+  <section id="empty">
+    <h1 data-i18n="hello"></h1>
+    <ul id="suggestions"></ul>
+  </section>
+</main>
+
+<footer>
+  <div class="control">
+    <button id="stop" class="ghost" type="button" hidden data-i18n="stop"></button>
+    <button id="orb" type="button" aria-label="Parler"><svg class="glyph big"><use href="#mark"/></svg></button>
+    <p id="status" data-i18n="idle"></p>
+  </div>
+  <form id="composer" autocomplete="off">
+    <input id="txt" type="text" data-i18n-placeholder="placeholder" enterkeyhint="send">
+    <button class="send" type="submit" data-i18n-title="send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </form>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

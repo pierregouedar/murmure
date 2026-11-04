@@ -59,6 +59,14 @@ Open `http://127.0.0.1:8080`. The browser only allows the microphone on `localho
 Murmure runs from its **instance directory** (`MURMURE_HOME`, the current directory by default), which holds `servers.json`,
 `voices/`, `plugins/`, `system_prompt.txt`, `pronunciation.txt` and key files.
 
+## The web page
+
+A single page, no build step, installable on a phone's home screen. Tap the orb to talk and Murmure sends your question when you stop
+speaking, or hold it and release to send. The orb shows what is happening (listening with a live level, thinking, speaking). `Space`
+holds to talk, `Esc` cancels, **Stop** interrupts a long answer, and the speaker icon mutes the voice. Answers stream in as they are
+spoken, with the sources as links and the timing details one tap away. The conversation is kept in the browser, and the page follows
+the system theme and language (French or English). It lives in `murmure/web/` and is served as plain files.
+
 ## Configuration
 
 Everything is optional; see [`deploy/murmure.env.example`](deploy/murmure.env.example).
@@ -122,7 +130,7 @@ sensitive-topic word list are French. Adding a language means writing its rules 
 ## Project layout
 
 ```
-murmure/      the package: server (HTTP, STT, TTS), rules (what to search, cleaning), tools (instant answers), backend (server chain)
+murmure/      the package: server (HTTP, STT, TTS), rules (what to search, cleaning), tools (instant answers), backend (server chain), web/ (the page)
 examples/     example plugin
 deploy/       env and servers examples, systemd units, ntfy notifier
 tests/        unit tests, standard library only: python -m tests

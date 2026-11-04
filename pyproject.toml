@@ -31,4 +31,4 @@ Homepage = "https://github.com/pierregouedar/murmure"
 packages = ["murmure"]
 
 [tool.setuptools.package-data]
-murmure = ["data/*.txt"]
+murmure = ["data/*.txt", "web/*"]
