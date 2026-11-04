@@ -24,6 +24,9 @@ dependencies = [
   "piper-tts>=1.8",           # speech synthesis (GPL-3.0-or-later)
 ]
 
+[project.optional-dependencies]
+alexa = ["cryptography>=42", "certifi"]  # Alexa skill: verifies the signature of every request
+
 [project.urls]
 Homepage = "https://github.com/pierregouedar/murmure"
 

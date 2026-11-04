@@ -14,7 +14,7 @@ import onnxruntime as ort
 import onnx_asr
 from piper import PiperVoice, SynthesisConfig
 
-from . import HOME, tools
+from . import HOME, alexa, tools
 from .backend import Backend, is_sensitive
 from .rules import (decide, drop_fake_source, normalize_question, reset_topic, sentences, system_message,
                     to_speech, today, user_message, web_search)
@@ -108,6 +108,52 @@ def speak(text: str, fast: bool = False) -> bytes:
     return buf.getvalue()
 
 
+NO_RESULT = ("Je n'ai rien trouvé de fiable sur Internet pour ça, et je préfère ne pas te répondre de mémoire. "
+             "Essaie de reformuler, ou réessaie dans quelques minutes.")
+
+
+def respond(text: str, t: dict):
+    """The answer pipeline, without audio. Yields ("ack", None), ("sources", {...}) and ("phrase", sentence); fills the
+    timings `t`. The caller holds `lock`."""
+    t0 = time.time()
+    spoken = tools.answer(text)
+    if spoken is not None:  # time, date, weather, timers, plugins: direct answer, no LLM
+        reset_topic()
+        t["outil"] = True
+        yield "phrase", spoken
+        history.extend([{"role": "user", "content": text}, {"role": "assistant", "content": spoken}])
+        return
+    query = decide(text)
+    sources = []
+    if query:
+        yield "ack", None
+        t["accuse"] = round(time.time() - t0, 2)
+        t2 = time.time()
+        try:
+            sources = web_search(query)
+        except OSError:  # SearXNG unreachable or too slow
+            sources = []
+        t["recherche"] = round(time.time() - t2, 2)
+        yield "sources", {"requete": query, "sources": sources}
+        if not sources:
+            # engines suspended (too many requests, CAPTCHA): do not let the model answer from memory, it would make things up
+            yield "phrase", NO_RESULT
+            return
+    user, raw = user_message(text, sources, query or ""), []
+    for s in sentences(raw.append(d) or d for d in stream_answer(user)):
+        if not sources:
+            s = drop_fake_source(s)
+            if not s:
+                continue
+        yield "phrase", s
+    # history identical to the prompt sent and the text generated: otherwise the LFM2 cache no longer matches
+    # and it re-reads the whole tail of the conversation (~300 tokens, ~4 s) on the next question
+    history.extend([{"role": "user", "content": user}, {"role": "assistant", "content": "".join(raw)}])
+    if len(history) > 4 * HISTORY_TURNS:  # trim in blocks: trimming every turn would invalidate the cache each time
+        del history[:-2 * HISTORY_TURNS]
+    t["serveur"] = backend.last
+
+
 def handle(audio_bytes: bytes | None, text: str | None, emit):
     """Full pipeline; `emit(dict)` sends one NDJSON line to the browser."""
     t, t0 = {}, time.time()
@@ -120,51 +166,24 @@ def handle(audio_bytes: bytes | None, text: str | None, emit):
         if not text:
             emit({"type": "phrase", "texte": "Je n'ai rien entendu.", "audio": base64.b64encode(speak("Je n'ai rien entendu.")).decode()})
             return emit({"type": "fin", "timings": t})
-        spoken = tools.answer(text)
-        if spoken is not None:  # time, date, weather, backups, timer: direct answer, no LLM
-            reset_topic()
-            wav = speak(spoken, fast=True)
-            t["outil"] = True
-            t["premier_son"] = t["total"] = round(time.time() - t0, 2)
-            emit({"type": "phrase", "texte": spoken, "audio": base64.b64encode(wav).decode()})
-            history.extend([{"role": "user", "content": text}, {"role": "assistant", "content": spoken}])
-            return emit({"type": "fin", "timings": t})
-        query = decide(text)
-        sources = []
-        if query:
-            if ack_wavs:
-                emit({"type": "ack", "audio": ack_wavs[int(t0) % len(ack_wavs)]})
-                t["accuse"] = round(time.time() - t0, 2)
-            t2 = time.time()
-            try:
-                sources = web_search(query)
-            except OSError:  # SearXNG unreachable or too slow
-                sources = []
-            t["recherche"] = round(time.time() - t2, 2)
-            emit({"type": "sources", "requete": query, "sources": sources})
-            if not sources:
-                # engines suspended (too many requests, CAPTCHA): do not let LFM2 answer from memory, it would make things up
-                msg = "Je n'ai rien trouvé de fiable sur Internet pour ça, et je préfère ne pas te répondre de mémoire. Essaie de reformuler, ou réessaie dans quelques minutes."
-                emit({"type": "phrase", "texte": msg, "audio": base64.b64encode(speak(msg, fast=True)).decode()})
-                t["total"] = round(time.time() - t0, 2)
-                return emit({"type": "fin", "timings": t})
-        user, raw = user_message(text, sources, query or ""), []
-        for s in sentences(raw.append(d) or d for d in stream_answer(user)):
-            if not sources:
-                s = drop_fake_source(s)
-                if not s:
-                    continue
-            wav = speak(s, fast="premier_son" not in t)
-            t.setdefault("premier_son", round(time.time() - t0, 2))
-            emit({"type": "phrase", "texte": s, "audio": base64.b64encode(wav).decode()})
-        # history identical to the prompt sent and the text generated: otherwise the LFM2 cache no longer matches
-        # and it re-reads the whole tail of the conversation (~300 tokens, ~4 s) on the next question
-        history.extend([{"role": "user", "content": user}, {"role": "assistant", "content": "".join(raw)}])
-        if len(history) > 4 * HISTORY_TURNS:  # trim in blocks: trimming every turn would invalidate the cache each time
-            del history[:-2 * HISTORY_TURNS]
+        for kind, data in respond(text, t):
+            if kind == "ack":
+                if ack_wavs:
+                    emit({"type": "ack", "audio": ack_wavs[int(t0) % len(ack_wavs)]})
+            elif kind == "sources":
+                emit({"type": "sources", **data})
+            else:
+                wav = speak(data, fast="premier_son" not in t)
+                t.setdefault("premier_son", round(time.time() - t0, 2))
+                emit({"type": "phrase", "texte": data, "audio": base64.b64encode(wav).decode()})
         t["total"] = round(time.time() - t0, 2)
-        t["serveur"] = backend.last
         emit({"type": "fin", "timings": t})
+
+
+def text_answer(text: str) -> str:
+    """The answer as plain text, for callers that need no audio (the Alexa skill)."""
+    with lock:
+        return " ".join(data for kind, data in respond(normalize_question(text), {}) if kind == "phrase")
 
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")  # the web page: index.html, app.js, style.css, icon, manifest
@@ -264,6 +283,8 @@ def warm() -> None:
 
 
 def main() -> None:
+    if alexa.enabled():
+        alexa.serve(text_answer, tools.capabilities)
     ack_wavs.extend(base64.b64encode(speak(a, fast=True)).decode() for a in ACKS)
     threading.Thread(target=warm, daemon=True).start()
     httpd = ThreadingHTTPServer((BIND, PORT), Handler)

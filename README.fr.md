@@ -117,6 +117,21 @@ Un plugin est un fichier Python dans `plugins/` avec `answer(question, now) -> s
 le LLM ; renvoie `None` pour passer. Une chaîne `ABOUT` facultative complète « Je peux… » dans la liste des capacités. [`examples/plugins/backup_status.py`](examples/plugins/backup_status.py)
 répond à « la sauvegarde de cette nuit s'est bien passée ? » à partir des fichiers JSON d'une tâche de sauvegarde.
 
+### Alexa (facultatif)
+
+Un Echo peut servir de micro et d'enceinte à Murmure grâce à un skill Alexa personnalisé et privé : *« Alexa, ouvre Murmure »*, puis tu poses
+tes questions. Alexa transcrit ta voix chez Amazon et lit la réponse avec sa propre voix : l'audio n'est donc plus local. Le skill reste en phase
+de développement sur ton compte développeur Amazon : il marche sur tes appareils et n'est jamais publié.
+
+1. `pip install ".[alexa]"`, puis définir `MURMURE_ALEXA_SKILL_ID` et `MURMURE_ALEXA_TOKEN` (une longue chaîne aléatoire). Un écouteur séparé
+   ne sert que `POST /alexa/<jeton>` sur `127.0.0.1:8765` (`MURMURE_ALEXA_BIND`, `MURMURE_ALEXA_PORT`). Publie ce port, par exemple avec un tunnel
+   Cloudflare, jamais le serveur Murmure entier. Chaque requête est vérifiée : chaîne de certificats, signature, âge, identifiant du skill.
+2. Dans la [console développeur Alexa](https://developer.amazon.com/alexa/console/ask), créer un skill personnalisé (français, hébergement
+   personnel), coller [`deploy/alexa/interaction-model.fr.json`](deploy/alexa/interaction-model.fr.json) dans l'éditeur JSON et le construire.
+3. Mettre le point d'entrée sur `https://<ton hôte>/alexa/<jeton>` et recopier l'identifiant du skill de cette page dans `MURMURE_ALEXA_SKILL_ID`.
+
+Alexa attend environ 8 s la réponse : les modèles locaux lents ne conviennent pas, et les questions sensibles y sont refusées et renvoyées vers la page web.
+
 ### Minuteurs et rappels
 
 Définir `MURMURE_NOTIFY_CMD` avec une commande qui envoie une notification, par exemple [`deploy/notify-ntfy.sh`](deploy/notify-ntfy.sh). Avec systemd,

@@ -2,7 +2,7 @@
 import runpy, sys
 
 failed = []
-for name in ("test_rules", "test_tools", "test_backend", "test_web"):
+for name in ("test_rules", "test_tools", "test_backend", "test_web", "test_alexa"):
     try:
         runpy.run_module(f"tests.{name}", run_name="__main__")
     except SystemExit as e:

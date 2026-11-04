@@ -1,0 +1,300 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "murmure",
+      "intents": [
+        {
+          "name": "AskIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "demande {query}",
+            "dis {query}",
+            "dis-moi {query}",
+            "dis moi {query}",
+            "je voudrais savoir {query}",
+            "j'aimerais savoir {query}",
+            "peux-tu me dire {query}",
+            "peux tu me dire {query}"
+          ]
+        },
+        {
+          "name": "SearchIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "cherche {query}",
+            "recherche {query}",
+            "cherche-moi {query}",
+            "cherche moi {query}"
+          ]
+        },
+        {
+          "name": "WhoIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "qui {query}"
+          ]
+        },
+        {
+          "name": "WhichIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "quel {query}"
+          ]
+        },
+        {
+          "name": "WhichFemIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "quelle {query}"
+          ]
+        },
+        {
+          "name": "WhichPluralIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "quels {query}"
+          ]
+        },
+        {
+          "name": "WhichFemPluralIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "quelles {query}"
+          ]
+        },
+        {
+          "name": "WhenIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "quand {query}"
+          ]
+        },
+        {
+          "name": "WhereIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "où {query}"
+          ]
+        },
+        {
+          "name": "HowIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "comment {query}"
+          ]
+        },
+        {
+          "name": "WhyIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "pourquoi {query}"
+          ]
+        },
+        {
+          "name": "HowManyIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "combien {query}"
+          ]
+        },
+        {
+          "name": "IsItIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "est-ce que {query}",
+            "est ce que {query}"
+          ]
+        },
+        {
+          "name": "WhatIsIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "c'est quoi {query}"
+          ]
+        },
+        {
+          "name": "WhatIsThatIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "qu'est-ce que {query}",
+            "qu'est ce que {query}"
+          ]
+        },
+        {
+          "name": "TellIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "raconte-moi {query}",
+            "raconte moi {query}",
+            "raconte {query}"
+          ]
+        },
+        {
+          "name": "SetIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "mets {query}",
+            "mets-moi {query}",
+            "mets moi {query}"
+          ]
+        },
+        {
+          "name": "RemindIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "rappelle-moi {query}",
+            "rappelle moi {query}"
+          ]
+        },
+        {
+          "name": "WakeIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "réveille-moi {query}",
+            "réveille moi {query}"
+          ]
+        },
+        {
+          "name": "TurnOnIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "allume {query}"
+          ]
+        },
+        {
+          "name": "TurnOffIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "éteins {query}",
+            "éteint {query}"
+          ]
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ]
+    }
+  }
+}

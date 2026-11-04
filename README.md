@@ -116,6 +116,21 @@ A plugin is a Python file in `plugins/` with `answer(question, now) -> str | Non
 LLM; return `None` to pass. An optional `ABOUT` string completes "Je peux…" in the list of capabilities. [`examples/plugins/backup_status.py`](examples/plugins/backup_status.py)
 answers "did last night's backup go well?" from the JSON files of a backup job.
 
+### Alexa (optional)
+
+An Echo can be a microphone and speaker for Murmure through a private Alexa custom skill: *"Alexa, ouvre Murmure"*, then ask. Alexa
+transcribes your voice at Amazon and reads the answer in its own voice, so audio is no longer local. The skill stays in the development
+stage of your Amazon developer account: it works on your own devices and is never published.
+
+1. `pip install ".[alexa]"`, then set `MURMURE_ALEXA_SKILL_ID` and `MURMURE_ALEXA_TOKEN` (a long random string). A separate listener
+   serves only `POST /alexa/<token>` on `127.0.0.1:8765` (`MURMURE_ALEXA_BIND`, `MURMURE_ALEXA_PORT`). Publish that port, for example
+   with a Cloudflare tunnel, and never the whole Murmure server. Every request is verified: certificate chain, signature, age, skill id.
+2. In the [Alexa developer console](https://developer.amazon.com/alexa/console/ask), create a custom skill (French, provision your own),
+   paste [`deploy/alexa/interaction-model.fr.json`](deploy/alexa/interaction-model.fr.json) in the JSON editor and build it.
+3. Set the endpoint to `https://<your host>/alexa/<token>` and copy the skill id from that page into `MURMURE_ALEXA_SKILL_ID`.
+
+Alexa answers within about 8 s, so slow local models do not fit, and sensitive questions are refused there and sent to the web page.
+
 ### Timers and reminders
 
 Set `MURMURE_NOTIFY_CMD` to a command that delivers a notification, for instance [`deploy/notify-ntfy.sh`](deploy/notify-ntfy.sh). With systemd,
