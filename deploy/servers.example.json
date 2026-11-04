@@ -1,0 +1,22 @@
+[
+  {
+    "name": "cloud",
+    "url": "https://openrouter.ai/api",
+    "key_file": "openrouter.key",
+    "timeout": 8,
+    "extra": {"model": "deepseek/deepseek-v4-flash-0731", "provider": {"data_collection": "deny"}, "reasoning": {"enabled": false}}
+  },
+  {
+    "name": "gpu-pc",
+    "url": "http://192.168.1.50:8091",
+    "key": "change-me",
+    "private": true,
+    "wake": {"mac": "AA:BB:CC:DD:EE:FF", "broadcast": "192.168.1.255"}
+  },
+  {
+    "name": "local",
+    "url": "http://127.0.0.1:8090",
+    "private": true,
+    "extra": {"chat_template_kwargs": {"enable_thinking": false, "thinking": false}}
+  }
+]

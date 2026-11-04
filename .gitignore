@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+
+# instance files: secrets, local settings, voices and models
+*.key
+servers.json
+murmure.env
+system_prompt.txt
+voices/
+*.gguf
+*.onnx
+*.onnx.json
+*.wav
+
+# benchmark output
+bench-results/

@@ -1,0 +1,17 @@
+# /etc/systemd/system/murmure.service : Murmure runs from its instance directory (MURMURE_HOME), here /opt/murmure,
+# which holds the virtualenv, voices/, servers.json, plugins/... and a checkout of this repository's `murmure/` folder.
+[Unit]
+Description=Murmure voice assistant
+After=network-online.target llama-server.service
+Wants=llama-server.service
+
+[Service]
+WorkingDirectory=/opt/murmure
+EnvironmentFile=/etc/murmure.env
+Environment=HF_HUB_OFFLINE=1
+ExecStart=/opt/murmure/venv/bin/python -m murmure
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "murmure"
+version = "0.1.0"
+description = "Self-hosted voice assistant: local speech recognition and synthesis, instant tools, web search, any OpenAI-compatible LLM."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Pierre Gouedar" }]
+keywords = ["voice-assistant", "self-hosted", "speech-recognition", "tts", "llm", "french"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+  "numpy>=2.0",
+  "onnxruntime>=1.20",
+  "onnx-asr[cpu,hub]>=0.12",  # speech recognition (Parakeet TDT 0.6B v3, int8)
+  "piper-tts>=1.8",           # speech synthesis (GPL-3.0-or-later)
+]
+
+[project.urls]
+Homepage = "https://github.com/pierregouedar/murmure"
+
+[tool.setuptools]
+packages = ["murmure"]
+
+[tool.setuptools.package-data]
+murmure = ["data/*.txt"]

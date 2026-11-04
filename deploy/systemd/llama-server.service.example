@@ -1,0 +1,13 @@
+# Local fallback model on CPU (llama.cpp). The options were chosen after measurements on an Intel N97: see "What was measured" in the README.
+[Unit]
+Description=llama.cpp server (Murmure local fallback model)
+After=network-online.target
+
+[Service]
+ExecStart=/opt/llm/build/bin/llama-server -m /opt/llm/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf --alias qwen \
+  --host 127.0.0.1 --port 8090 -ngl 0 -t 4 -c 8192 -np 1 --flash-attn on --load-mode mmap+mlock \
+  --cache-reuse 256 --checkpoint-min-step 32 --jinja
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

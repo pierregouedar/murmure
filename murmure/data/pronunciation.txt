@@ -1,0 +1,26 @@
+# Pronunciation dictionary (French): "word = spelling that makes Piper say it right".
+# Case-insensitive, whole words only. Reloaded automatically when the file changes (no restart).
+# To override or extend it, copy this file to your instance directory (MURMURE_HOME/pronunciation.txt).
+
+# Places
+Reims = Rince
+Vesle = Vèle
+Metz = Messe
+Auxerre = Ossère
+Bruxelles = Brussel
+New York = Niou Yorque
+
+# Proper nouns, brands and anglicisms
+Learjet = Lirdjète
+week-end = ouikènde
+weekend = ouikènde
+OneFootball = Ouane Foutbôl
+Times = Taïmze
+Bitcoin = Bitcoïne
+Google = Gougueule
+YouTube = Youtioube
+iPhone = Aïfone
+email = imèle
+e-mail = imèle
+streaming = strimigne
+Spotify = Spotifaille
